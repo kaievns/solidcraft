@@ -36,7 +36,7 @@ struct OnProjected {
 
 fn own_lines_on_a_projected_line() -> OnProjected {
     let mut h = Harness::new();
-    h.app.ui.show_origin = false;
+    h.app.set_origin_shown(false);
     h.app.run("solid.box", json!({"length":40,"width":10,"height":10,"corner":[0,0,-20]})).unwrap();
     h.app.run("sketch.create", json!({"plane":"XY"})).unwrap();
     h.app.run("sketch.project", json!({"refs":[{"edge":[20,0,-10]}]})).unwrap();
