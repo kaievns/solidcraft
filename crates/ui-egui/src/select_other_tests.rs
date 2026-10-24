@@ -32,7 +32,7 @@ fn curves(h: &Harness) -> Vec<String> {
 /// y 10): screen points on each.
 fn two_lines_apart() -> (Harness, Value, Value) {
     let mut h = Harness::new();
-    h.app.ui.show_origin = false;
+    h.app.set_origin_shown(false);
     h.app.run("sketch.create", json!({"plane":"XY"})).unwrap();
     for (x0, x1) in [(0, 15), (25, 40)] {
         h.app.run("sketch.line", json!({"points":[[x0,10],[x1,10]],"infer":false,"connect":false})).unwrap();
