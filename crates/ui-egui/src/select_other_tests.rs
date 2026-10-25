@@ -40,7 +40,8 @@ fn two_lines_apart() -> (Harness, Value, Value) {
     h.app.cam.distance = 100.0;
     h.settle();
     let at = |h: &mut Harness, x: f64| h.call("ui.at", json!({"sketch":[x,10]}))["result"].clone();
-    let (at_a, at_b) = (at(&mut h, 7.0), at(&mut h, 33.0));
+    // Away from the midpoints (7.5 and 32.5), which are picks of their own.
+    let (at_a, at_b) = (at(&mut h, 3.0), at(&mut h, 37.0));
     (h, at_a, at_b)
 }
 
