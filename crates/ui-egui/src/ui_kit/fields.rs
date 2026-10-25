@@ -305,7 +305,12 @@ pub(crate) fn selection_field(ui: &mut Ui, text: &str, options: Selection) -> Re
         if active && !filled { rect.shrink(t.space_2) } else { rect },
         t.control_radius,
         fill,
-        if active { egui::Stroke::new(1.0, border) } else { t.control_border_stroke(border) },
+        match (active, filled) {
+            (true, _) => egui::Stroke::new(1.0, border),
+            // A theme's control border can fix its own colour; a filled field keeps its tint.
+            (false, true) => egui::Stroke::new(t.control_border_stroke(border).width, border),
+            (false, false) => t.control_border_stroke(border),
+        },
         egui::StrokeKind::Inside,
     );
     let end = if filled { t.space_24 } else { t.space_8 };
