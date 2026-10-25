@@ -62,18 +62,6 @@ fn hovered_curve(h: &Harness) -> Option<String> {
     }
 }
 
-/// The open list's row of sketch curve `id`.
-fn row_of(h: &Harness, id: &str) -> usize {
-    let rows = crate::select_other::describe(&h.app)["rows"].clone();
-    let sels: Vec<Sel> = rows.as_array().into_iter().flatten().filter_map(|r| serde_json::from_value(r["sel"].clone()).ok()).collect();
-    sels.iter().position(|s| matches!(s, Sel::SketchCurve { id: x } if x == id)).unwrap_or_else(|| panic!("no row for {id}: {rows}"))
-}
-
-fn sorted(mut v: Vec<String>) -> Vec<String> {
-    v.sort();
-    v
-}
-
 fn labels(h: &Harness) -> Vec<String> {
     crate::select_other::describe(&h.app)["rows"].as_array().into_iter().flatten().filter_map(|r| r["label"].as_str().map(String::from)).collect()
 }
