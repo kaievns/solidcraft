@@ -198,5 +198,48 @@
     "warning": "#956000"
   },
   "format": "solidcraft-theme/1",
-  "name": "Akari"
+  "name": "Akari",
+  "icon_palette": {
+    "ink": "#13110e",
+    "line": "#505054",
+    "passive-1": "#dee5ee",
+    "passive-2": "#aeb5bd",
+    "passive-3": "#81878f",
+    "guide": "#6e6e73",
+    "solid": [
+      "#dbe9fe",
+      "#81b3fa",
+      "#1875eb"
+    ],
+    "surface": [
+      "#fde3c4",
+      "#daa662",
+      "#a06f28"
+    ],
+    "mesh": [
+      "#fee7a2",
+      "#d1ad37",
+      "#937717"
+    ],
+    "form": [
+      "#ede2ff",
+      "#c39afc",
+      "#8b62bf"
+    ],
+    "sketch": [
+      "#b1fdc5",
+      "#72c78b",
+      "#388e56"
+    ],
+    "constraint": [
+      "#fee0dd",
+      "#f98e87",
+      "#d73339"
+    ],
+    "construction": [
+      "#fde3c4",
+      "#daa662",
+      "#a06f28"
+    ]
+  }
 }

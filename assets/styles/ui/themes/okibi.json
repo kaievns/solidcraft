@@ -198,5 +198,48 @@
     "warning": "#e6af2b"
   },
   "format": "solidcraft-theme/1",
-  "name": "Okibi"
+  "name": "Okibi",
+  "icon_palette": {
+    "ink": "#15171a",
+    "line": "#e1e3e5",
+    "passive-1": "#bfc1c5",
+    "passive-2": "#939599",
+    "passive-3": "#6a6c6f",
+    "guide": "#a0a6b0",
+    "solid": [
+      "#a0d7fb",
+      "#65bdf3",
+      "#4aa3d8"
+    ],
+    "surface": [
+      "#fcc28e",
+      "#dea572",
+      "#c38c59"
+    ],
+    "mesh": [
+      "#e8cd7d",
+      "#cab060",
+      "#b19747"
+    ],
+    "form": [
+      "#d5c4fd",
+      "#b9a7df",
+      "#a08fc4"
+    ],
+    "sketch": [
+      "#b0dbc0",
+      "#94bea4",
+      "#7ba58b"
+    ],
+    "constraint": [
+      "#febbb9",
+      "#fb8e8d",
+      "#e57071"
+    ],
+    "construction": [
+      "#fcc28e",
+      "#dea572",
+      "#c38c59"
+    ]
+  }
 }
