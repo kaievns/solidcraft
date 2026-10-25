@@ -50,7 +50,8 @@ fn own_lines_on_a_projected_line() -> OnProjected {
     let own: Vec<String> = sk.curves.iter().filter(|c| c.link.is_none()).map(|c| c.id.clone()).collect();
     assert_eq!((projected.len(), own.len()), (1, 2), "{:?}", sk.curves);
     let at = |h: &mut Harness, x: f64| h.call("ui.at", json!({"sketch":[x,0]}))["result"].clone();
-    let (at_a, at_b, at_projected) = (at(&mut h, 10.0), at(&mut h, 30.0), at(&mut h, 20.0));
+    // Away from the midpoints (10, 30 and 20), which are picks of their own.
+    let (at_a, at_b, at_projected) = (at(&mut h, 7.0), at(&mut h, 27.0), at(&mut h, 2.0));
     OnProjected { h, a: own[0].clone(), b: own[1].clone(), projected: projected[0].clone(), at_a, at_b, at_projected }
 }
 
