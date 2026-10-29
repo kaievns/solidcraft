@@ -721,6 +721,22 @@ fn row_eyes_line_up_at_the_right_end_unless_the_preference_keeps_them_left() {
     }
     assert!(column > activate().x + 40.0 && column > card.right() - 40.0, "the eye sits at the row's end, apart from the radio");
     assert!(eye("Inner").y > eye(&placement).y + 10.0, "the body sits under its placement");
+    // Its tip shows by the eye, not under the name.
+    h.step(&json!({"move":{"handle":"eye:Top"}})).unwrap();
+    h.frames(60);
+    h.frame();
+    let mut tip = None;
+    for clipped in &h.shapes {
+        crate::test_support::each_shape(&clipped.shape, &mut |s| {
+            if let egui::Shape::Text(t) = s
+                && t.galley.text() == "Hide"
+            {
+                tip = Some(t.pos.x + t.galley.rect.center().x);
+            }
+        });
+    }
+    let tip = tip.expect("the eye's Hide tip");
+    assert!(tip > label("Top").right(), "the tip at {tip} is by the eye at {}", eye("Top").x);
 
     h.step(&json!({"click":{"handle":format!("eye:{placement}")}})).unwrap();
     assert!(h.app.session.occurrence_hidden(&[part]), "the placement's eye hides it");

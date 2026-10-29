@@ -369,6 +369,13 @@ pub(crate) fn tree_row(ui: &mut egui::Ui, id: egui::Id, row: &Row) -> RowResp {
     };
     let state = row.kind_tip.map(crate::i18n::tr).or(row.tip);
     let resp = match (tip, state) {
+        // The eye at the row's end shows its tip there, not under the name.
+        (Some(t), _) if hover_on == 2 && eye_end => {
+            let mut at_eye = resp.clone();
+            (at_eye.rect, at_eye.interact_rect) = (eye_r, eye_r);
+            at_eye.on_hover_text(t);
+            resp
+        }
         (Some(t), _) => resp.on_hover_text(t),
         (None, Some(state)) if elided => resp.on_hover_text(format!("{label_display}\n{state}")),
         (None, Some(state)) => resp.on_hover_text(state),
