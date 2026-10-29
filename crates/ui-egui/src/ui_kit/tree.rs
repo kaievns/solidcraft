@@ -161,6 +161,8 @@ pub(crate) fn tree_row(ui: &mut egui::Ui, id: egui::Id, row: &Row) -> RowResp {
     }
     let mut x = r.left() + if row.compact { t.space_8 + row.depth as f32 * t.space_14 } else { 2.0 + row.depth as f32 * INDENT };
     let cy = r.top() + row_height / 2.0;
+    // Where the row's depth puts it, whatever controls it has.
+    crate::scenario::publish_handle(&format!("indent:{}", row.label), pos2(x, cy));
     let action_width = if row.compact { t.space_16 } else { t.form_close_size };
     let action_left = (r.right() - if row.compact { t.space_8 } else { t.space_4 } - action_width * row.actions.len() as f32).max(r.left());
     for (index, action) in row.actions.iter().enumerate() {
@@ -194,18 +196,22 @@ pub(crate) fn tree_row(ui: &mut egui::Ui, id: egui::Id, row: &Row) -> RowResp {
     // padding, the eye, the radio, or the row itself), so a click on the arrow never also
     // selects the row or starts a drag.
     let fold_r = Rect::from_min_max(pos2(x - 4.0, r.top()), pos2(x + 15.0, r.bottom()));
-    // At the row's end the eyes form one column, clear of a floating scroll bar.
+    // At the row's end the eyes form one column, clear of a floating scroll bar laid over the rows.
     let eye_end = !row.compact && !row.eye_left;
+    let scroll = &ui.spacing().scroll;
+    let bar = if scroll.floating { (scroll.bar_width + scroll.bar_outer_margin - scroll.floating_allocated_width).max(0.0) } else { 0.0 };
     let eye_width = t.space_16 + t.space_3;
     let eye_x = if row.compact {
         action_left - t.space_6
     } else if eye_end {
-        action_left.min(r.right() - ui.spacing().scroll.bar_width) - eye_width / 2.0
+        action_left.min(r.right() - bar) - eye_width / 2.0
     } else {
         x + 14.0 + 8.0
     };
     let eye_r = Rect::from_center_size(pos2(eye_x, cy), vec2(eye_width, r.height()));
-    let radio_x = if eye_end { x + 14.0 + t.space_4 + 6.0 } else { x + 32.0 + 6.0 };
+    // After the fold arrow: the eye's slot, or a gap that keeps the arrow and the radio apart.
+    let slot = if eye_end { t.space_10 } else { 18.0 };
+    let radio_x = x + 14.0 + slot + 6.0;
     let radio_r = Rect::from_center_size(pos2(radio_x, cy), vec2(t.space_12 + t.space_3, r.height()));
     // The button right after the name takes room from the label; it is placed once the label is laid out.
     let name_action_width = if row.action.is_some() { 22.0 } else { 0.0 };
@@ -244,10 +250,8 @@ pub(crate) fn tree_row(ui: &mut egui::Ui, id: egui::Id, row: &Row) -> RowResp {
         out.eye_at = Some(er.center());
         crate::scenario::publish_handle(&format!("eye:{}", row.label), er.center());
     }
-    if eye_end {
-        x += t.space_4;
-    } else if !row.compact {
-        x += 18.0;
+    if !row.compact {
+        x += slot;
     }
     // Activation radio (components).
     if let Some(active) = row.radio {
