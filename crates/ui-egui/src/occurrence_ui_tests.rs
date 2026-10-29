@@ -432,8 +432,9 @@ fn a_folded_body_sits_one_level_under_its_nested_placement() {
     h.app.run("solid.box", json!({"length":10,"width":10,"height":10,"body_name":"Pin"})).unwrap();
     h.app.run("component.activate", json!({"component":0})).unwrap();
     h.app.tree.collapsed.insert(format!("{}/bodies", super::occurrence_key(&[parent, child])));
-    // How many levels the body's row sits under its placement's (each eye sits at the same offset
-    // in its row).
+    // How many levels the body's row sits under its placement's (beside the fold arrow, each eye
+    // sits at the same offset in its row).
+    h.app.preferences.browser_eye_left = true;
     let levels = || -> Option<i32> {
         let placement = crate::scenario::handle_at(&format!("eye:occurrence:{parent}/{child}"))?;
         let body = crate::scenario::handle_at("eye:Pin")?;

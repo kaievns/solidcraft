@@ -696,3 +696,44 @@ fn browser_occurrence_clicks_fill_align_components_input() {
     h.step(&json!({"click": {"handle": &handle}})).unwrap();
     assert!(h.app.dialog.as_ref().unwrap().inputs[0].items.is_empty());
 }
+
+/// #8718: the eyes form one column at the rows' right end, right of each name and radio at every
+/// depth, and a click on one hides without activating; the preference puts them back by the fold arrow.
+#[test]
+fn row_eyes_line_up_at_the_right_end_unless_the_preference_keeps_them_left() {
+    let mut h = Harness::new();
+    h.app.run("solid.box", json!({"length":10,"width":10,"height":10,"body_name":"Top"})).unwrap();
+    let part = h.app.run("component.create", json!({"name":"Part"})).unwrap()["occurrence"].as_u64().unwrap();
+    h.app.run("solid.box", json!({"length":10,"width":10,"height":10,"corner":[20,0,0],"body_name":"Inner"})).unwrap();
+    h.app.run("component.activate", json!({"component":0})).unwrap();
+    h.settle();
+    let placement = format!("occurrence:{part}");
+    let eye = |name: &str| handle_at(&format!("eye:{name}")).unwrap_or_else(|| panic!("eye:{name}"));
+    let label = |name: &str| rect_of(&format!("row_label:{name}")).unwrap_or_else(|| panic!("row_label:{name}"));
+    let activate = || handle_at(&format!("activate:{placement}")).unwrap();
+    let card = rect_of("browser:card").unwrap();
+    let column = eye(&placement).x;
+    for name in ["Bodies", "Top", "Inner", placement.as_str()] {
+        assert!((eye(name).x - column).abs() < 0.5, "{name}: {} is off the column at {column}", eye(name).x);
+    }
+    for name in ["Bodies", "Top", "Inner"] {
+        assert!(eye(name).x > label(name).right(), "{name}: the eye is right of the name");
+    }
+    assert!(column > activate().x + 40.0 && column > card.right() - 40.0, "the eye sits at the row's end, apart from the radio");
+    assert!(eye("Inner").y > eye(&placement).y + 10.0, "the body sits under its placement");
+
+    h.step(&json!({"click":{"handle":format!("eye:{placement}")}})).unwrap();
+    assert!(h.app.session.occurrence_hidden(&[part]), "the placement's eye hides it");
+    h.step(&json!({"click":{"handle":"eye:Top"}})).unwrap();
+    assert!(h.app.session.visibility.hidden_bodies.iter().any(|b| b == "Top"), "the body's eye hides it");
+    assert_eq!(h.app.session.active_component, 0, "an eye click activates nothing");
+    assert!(h.app.session.active_occurrence_path.is_none());
+
+    h.call("ui.prefs", json!({"browser_eye_left": true}));
+    h.settle();
+    assert!(eye("Top").x < label("Top").left() && eye(&placement).x < activate().x, "beside the fold arrow, as before");
+    assert!((eye("Inner").x - eye(&placement).x - super::INDENT).abs() < 0.5, "one level deeper, one indent further right");
+    h.step(&json!({"click":{"handle":"eye:Top"}})).unwrap();
+    assert!(!h.app.session.visibility.hidden_bodies.iter().any(|b| b == "Top"), "the eye still shows it");
+    assert_eq!(h.app.session.active_component, 0);
+}
