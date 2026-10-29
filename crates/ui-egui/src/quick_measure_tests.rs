@@ -7,10 +7,17 @@ use solidcraft_engine::geom::Vec3;
 
 use crate::scenario::Harness;
 
-/// A 10 × 20 × 30 box at the origin.
-fn block() -> Harness {
+/// A design shown, with quick measurement turned on.
+fn harness() -> Harness {
     let mut h = Harness::new();
     h.app.home.open = false;
+    h.app.preferences.quick_measure = true;
+    h
+}
+
+/// A 10 × 20 × 30 box at the origin.
+fn block() -> Harness {
+    let mut h = harness();
     h.app.run("solid.box", json!({"length": 10, "width": 20, "height": 30})).unwrap();
     h.frames(2);
     h
@@ -61,8 +68,7 @@ fn an_edge_shows_its_length() {
 
 #[test]
 fn a_round_edge_shows_its_diameter_radius_and_circumference() {
-    let mut h = Harness::new();
-    h.app.home.open = false;
+    let mut h = harness();
     h.app.run("solid.cylinder", json!({"radius": 5, "height": 10})).unwrap();
     h.frames(2);
     // The top circle, by a point between two of its polyline's points (its first is on the seam).
@@ -88,8 +94,7 @@ fn a_face_shows_its_area() {
 
 #[test]
 fn a_sketch_line_shows_its_length() {
-    let mut h = Harness::new();
-    h.app.home.open = false;
+    let mut h = harness();
     h.app.run("sketch.create", json!({"plane": "XY"})).unwrap();
     h.app.run("sketch.line", json!({"points": [[0, 0], [30, 40]]})).unwrap();
     h.app.session.selection = vec![Sel::SketchCurve { id: "l1".into(), sketch: None }];
@@ -100,8 +105,7 @@ fn a_sketch_line_shows_its_length() {
 /// measure as they do in the sketch.
 #[test]
 fn a_shown_sketchs_line_point_and_region_measure_too() {
-    let mut h = Harness::new();
-    h.app.home.open = false;
+    let mut h = harness();
     let sketch = h.app.run("sketch.create", json!({"plane": "XY"})).unwrap()["sketch"].as_u64().unwrap();
     h.app.run("sketch.rectangle.two_point", json!({"p0": [0, 0], "p1": [30, 40]})).unwrap();
     h.app.run("sketch.finish", json!({})).unwrap();
@@ -131,6 +135,23 @@ fn several_edges_show_their_count_and_total_length() {
     let mut h = block();
     h.app.session.selection = [[5.0, 0.0, 0.0], [5.0, 20.0, 0.0], [5.0, 0.0, 30.0]].map(|[x, y, z]| edge(&h, Vec3::new(x, y, z))).to_vec();
     assert_eq!(readout(&mut h), vec![row("3 edges", crate::prefs::show_mm(&h.app, 30.0, 1))]);
+}
+
+/// Off by default: nothing shows until Preferences › Interface turns it on.
+#[test]
+fn quick_measurement_is_off_until_turned_on() {
+    assert!(!crate::prefs::Prefs::default().quick_measure);
+    let mut h = Harness::new();
+    h.app.home.open = false;
+    h.app.run("solid.box", json!({"length": 10, "width": 20, "height": 30})).unwrap();
+    h.frames(2);
+    assert!(!h.app.preferences.quick_measure);
+    h.app.session.selection = vec![edge(&h, Vec3::new(5.0, 0.0, 0.0))];
+    assert!(readout(&mut h).is_empty(), "off by default");
+    h.frames(2);
+    assert!(crate::scenario::rect_of("measure:quick").is_none(), "nothing drawn");
+    h.call("ui.prefs", json!({"quick_measure": true}));
+    assert_eq!(readout(&mut h), vec![row("Length", crate::prefs::show_mm(&h.app, 10.0, 1))]);
 }
 
 /// Nothing shows with the preference off, with nothing selected, for something with nothing to
